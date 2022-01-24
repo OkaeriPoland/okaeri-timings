@@ -45,6 +45,51 @@ print_data() {
     echo "$timestamp,$user,$nice,$system,$idle,$iowait,$irq,$softirq,$steal,$guest,$guest_nice,$memtotal,$memfree,$memavailable,$membuffers,$memcached,$swapcached,$swaptotal,$swapfree"
 }
 
-print_metadata
-print_header
-print_data
+dump_delay=60
+dump_cycles="$((${1-5}))"
+dump_file="okaeri-timings-$(date +%s).csv"
+
+if [ "$dump_cycles" -lt 5 ]; then
+    echo "Report duration cannot be shorter than 5 minutes!"
+else
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] Saving data to $dump_file"
+    print_metadata > "$dump_file"
+    print_header >> "$dump_file"
+
+    i=0
+    while [ "$i" -lt "$dump_cycles" ]; do
+        print_data >> "$dump_file"
+        i=$(( i + 1 ))
+        # spinner - start
+        if [ "$i" -ne "$dump_cycles" ]; then
+            j=0
+            l=0
+            while [ "$j" -lt "$dump_delay" ]; do
+                j=$(( j + 1 ))
+                l=$(( l + 1 ))
+                case "$l" in
+                    1)
+                        spinner="◢"
+                        ;;
+                    2)
+                        spinner="◣"
+                        ;;
+                    3)
+                        spinner="◤"
+                        ;;
+                    4)
+                        spinner="◥"
+                        l=0
+                        ;;
+                esac
+                printf "[$(date '+%Y/%m/%d %H:%M:%S')] Progress: $i/$dump_cycles ($spinner)\r"
+                sleep 1
+            done
+        fi
+        # spinner - end
+        printf "[$(date '+%Y/%m/%d %H:%M:%S')] Progress: $i/$dump_cycles (✓)\r"
+        printf "\n"
+    done
+
+    echo "[$(date '+%Y/%m/%d %H:%M:%S')] Done!"
+fi
