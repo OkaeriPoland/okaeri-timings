@@ -1,15 +1,30 @@
 #!/bin/sh
 
+with_fallback() {
+    if [ -z "$2" ]; then
+        echo $1
+    else
+        shift
+        echo $@
+    fi
+}
+
 print_metadata() {
     echo "#"
     echo "# Okaeri Timings 1.0"
     echo "#"
-    echo "# Hostname: $(hostname)"
-#     echo "# IP: $(curl -s https://checkip.amazonaws.com/)"
-    echo "# User: $(whoami)"
+    echo "# User: $(with_fallback "<Unknown>" $(whoami))"
+    echo "# Hostname: $(with_fallback "<Unknown>" $(hostname))"
+    echo "# IP: $(with_fallback "<Unknown>" $(curl -s https://checkip.amazonaws.com/))"
     echo "#"
-    echo "# Kernel: $(uname -r)"
-    echo "# OS: $(cat /etc/os-release | grep PRETTY_NAME | awk -F '"' '{print $2}')"
+    echo "# Kernel: $(with_fallback "<Unknown>" $(uname -r))"
+    echo "# OS: $(with_fallback "<Unknown>" $(cat /etc/os-release | grep PRETTY_NAME | awk -F '"' '{print $2}'))"
+    echo "#"
+    echo "# Arch: $(with_fallback "<Unknown>" $(lscpu | grep '^Architecture: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
+    echo "# CPU: $(with_fallback "<Unknown>" $(lscpu | grep '^Model name: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
+    echo "#"
+    echo "# Hypervisor: $(with_fallback "N/A" $(lscpu | grep '^Hypervisor vendor: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
+    echo "# Virtualization: $(with_fallback "N/A" $(lscpu | grep '^Virtualization type: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
     echo "#"
 }
 
@@ -18,7 +33,7 @@ print_header() {
 }
 
 print_data() {
-    timestamp=$(date --iso-8601=seconds)
+    timestamp=$(date +%s)
 
     procstatout=$(cat /proc/stat | grep -m1 ^cpu | cut -d ' ' -f 3-)
     user=$(echo "$procstatout" | awk '{print $1}')
@@ -46,7 +61,7 @@ print_data() {
 }
 
 dump_delay=60
-dump_cycles="$((${1-5}))"
+dump_cycles="$((${1-60}))"
 dump_file="okaeri-timings-$(date +%s).csv"
 
 if [ "$dump_cycles" -lt 5 ]; then
