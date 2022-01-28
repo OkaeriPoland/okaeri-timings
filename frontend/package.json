@@ -13,10 +13,12 @@
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/vue-fontawesome": "^3.0.0-5",
     "apexcharts": "^3.33.0",
+    "axios": "^0.25.0",
     "core-js": "^3.6.5",
     "mdb-vue-ui-kit": "^1.9.0",
     "typeface-roboto": "^1.1.13",
     "vue": "^3.0.0",
+    "vue-axios": "^3.4.0",
     "vue3-apexcharts": "^1.4.1"
   },
   "devDependencies": {
