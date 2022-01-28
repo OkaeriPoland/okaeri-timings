@@ -5,8 +5,13 @@ plugins {
 }
 
 allprojects {
+
     group = 'eu.okaeri.timings'
     version = '0.0.1-SNAPSHOT'
+
+    repositories {
+        mavenCentral()
+    }
 }
 
 subprojects {
@@ -16,10 +21,6 @@ subprojects {
     apply plugin: 'java'
 
     sourceCompatibility = '17'
-
-    repositories {
-        mavenCentral()
-    }
 
     dependencies {
         compileOnly 'org.projectlombok:lombok'
@@ -31,4 +32,8 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+}
+
+bootJar {
+    enabled = false
 }

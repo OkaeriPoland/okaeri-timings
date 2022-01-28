@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class TimingsApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TimingsApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(TimingsApplication.class, args);
+    }
 }
