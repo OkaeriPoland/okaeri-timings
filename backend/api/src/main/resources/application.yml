@@ -20,9 +20,11 @@ springdoc:
   default-produces-media-type: "application/json"
 
 spring:
-  data:
-    rest:
-      base-path: /rest
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 1MB
+      max-request-size: 1MB
   redis:
     host: 127.0.0.1
     port: 6379
