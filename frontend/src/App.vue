@@ -21,7 +21,7 @@
             <MDBCardTitle>1. Generate report</MDBCardTitle>
             <MDBCardText>
               Execute this command on your Linux based system:
-              <pre class="mt-2 mb-4">curl -s https://timings.okaeri.eu/otimings.sh | bash -s 60</pre>
+              <pre class="mt-2 mb-4">curl -s {{ appUrl }}/otimings.sh | bash -s 60</pre>
               <strong>Note:</strong> report generation takes a long time. Make sure it runs till the end (e.g. using <code>screen</code>)
               for the best results. The default run-time is <code>60</code> minutes and cannot be shorter than 5 minutes. After the script
               finalizes its run, the file named 'okaeri-timings-XXX.csv' (e.g. 'okaeri-timings-1642975054.csv') will be available.
@@ -187,7 +187,8 @@ export default {
   },
   setup: function () {
     return {
-      dataLabels: ['user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq', 'steal', 'guest', 'guest_nice']
+      dataLabels: ['user', 'nice', 'system', 'idle', 'iowait', 'irq', 'softirq', 'steal', 'guest', 'guest_nice'],
+      appUrl: process.env.VUE_APP_URL
     }
   },
   data: function () {
