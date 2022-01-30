@@ -10,12 +10,23 @@ with_fallback() {
 }
 
 print_metadata() {
+
+    noproxyout=$(curl -s https://noproxy-api.okaeri.eu/v1/me)
+    ip=$(echo "$noproxyout" | grep -oP '"ip":(\s+)?"([^"\\]|\\.)*",?' | awk -F '"' '{print $4}')
+    asn=$(echo "$noproxyout" | grep -oP '"asn":(\s+)?([0-9]+),?' | grep -oP '[0-9]+')
+    provider=$(echo "$noproxyout" | grep -oP '"provider":(\s+)?"([^"\\]|\\.)*",?' | awk -F '"' '{print $4}')
+    country=$(echo "$noproxyout" | grep -oP '"country":(\s+)?"([^"\\]|\\.)*",?' | awk -F '"' '{print $4}')
+
     echo "#"
     echo "# Okaeri Timings 1.0"
     echo "#"
     echo "# User: $(with_fallback "<Unknown>" $(whoami))"
     echo "# Hostname: $(with_fallback "<Unknown>" $(hostname))"
-    echo "# IP: $(with_fallback "<Unknown>" $(curl -s https://checkip.amazonaws.com/))"
+    echo "#"
+    echo "# IP: $(with_fallback "<Unknown>" $ip)"
+    echo "# ASN: $(with_fallback "<Unknown>" $asn)"
+    echo "# Provider: $(with_fallback "<Unknown>" $provider)"
+    echo "# Country: $(with_fallback "<Unknown>" $country)"
     echo "#"
     echo "# Kernel: $(with_fallback "<Unknown>" $(uname -r))"
     echo "# OS: $(with_fallback "<Unknown>" $(cat /etc/os-release | grep PRETTY_NAME | awk -F '"' '{print $2}'))"
