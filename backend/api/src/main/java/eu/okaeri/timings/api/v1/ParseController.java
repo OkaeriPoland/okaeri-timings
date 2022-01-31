@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ public class ParseController {
             return ResponseEntity.badRequest().body(Map.of("error", "Expected text/csv, got: " + file.getContentType()));
         }
 
+        Instant start = Instant.now();
         String content = new String(file.getBytes(), StandardCharsets.UTF_8);
         String[] lines = content.split("\r?\n");
 
@@ -81,10 +84,15 @@ public class ParseController {
             throw new RuntimeException("Invalid report");
         }
 
+        Map<String, Object> report = Map.of(
+            "took", (Duration.between(start, Instant.now()))
+        );
+
         return ResponseEntity.ok(Map.of(
             "meta", metadata,
             "header", header,
-            "data", records
+            "data", records,
+            "report", report
         ));
     }
 }
