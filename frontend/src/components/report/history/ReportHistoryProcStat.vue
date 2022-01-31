@@ -47,7 +47,7 @@ export default {
       type: Object
     }
   },
-  data: function() {
+  data: function () {
 
     const metrics = ['cpu/user', 'cpu/nice', 'cpu/system', 'cpu/idle', 'cpu/iowait', 'cpu/irq', 'cpu/softirq', 'cpu/steal', 'cpu/guest', 'cpu/guest_nice'];
     const header = this.report.header;
@@ -59,11 +59,18 @@ export default {
         .map(row => row.reduce((a, b) => a + b, 0))
 
     const series = metrics.map(metric => {
-      const index = header.indexOf(metric);
-      return {
-        name: metric.replace('cpu/', ''),
-        data: data.map((entry, i) => [new Date(entry[timeIndex] * 1000), (entry[index] / cpuDataSums[i] * 100)])
-      }
+      const headerIndex = header.indexOf(metric);
+      const name = metric.replace('cpu/', '');
+      const mData = data.map((entry, rowIndex) => {
+        let share = rowIndex > 0
+            ? (entry[headerIndex] - data[rowIndex - 1][headerIndex]) / (cpuDataSums[rowIndex] - cpuDataSums[rowIndex - 1])
+            : entry[headerIndex] / cpuDataSums[rowIndex];
+        return [
+          new Date(entry[timeIndex] * 1000),
+          share * 100
+        ];
+      });
+      return {name, data: mData}
     });
 
     return {
