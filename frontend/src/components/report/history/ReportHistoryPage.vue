@@ -1,5 +1,5 @@
 <template>
-  <apexchart type="line" height="300" :options="chartOptions" :series="[{name: name, data: chartSeries}]"></apexchart>
+  <apexchart type="line" height="300" :options="chartOptions" :series="chartSeries"></apexchart>
 </template>
 
 <script>
@@ -7,20 +7,24 @@ export default {
   components: {
   },
   props: {
-    name: {
-      type: String
+    chartSeries: {
+      type: Array
+    },
+    yFormatter: {
+      type: Function,
+      default: function (value) {
+        return value.toFixed(3) + '%';
+      }
     },
     chartOptions: {
       type: Object,
-      default: function () {
+      default: function (props) {
         return {
           fill: {type: 'solid'},
           xaxis: {type: 'datetime'},
           yaxis: {
             labels: {
-              formatter: function (value) {
-                return value.toFixed(3) + '%';
-              }
+              formatter: props.yFormatter
             },
           },
           tooltip: {
@@ -34,9 +38,6 @@ export default {
         };
       }
     },
-    chartSeries: {
-      type: Array
-    }
   }
 }
 </script>
