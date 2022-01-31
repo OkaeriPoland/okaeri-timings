@@ -45,7 +45,7 @@ public class ParseController {
                 }
                 String[] parts = line.substring(1).split(":", 2);
                 if (parts.length != 2) {
-                    throw new RuntimeException("Cannot parse metadata: '" + line + "'");
+                    return ResponseEntity.badRequest().body(Map.of("error", "Cannot parse metadata: '" + line + "'"));
                 }
                 String key = parts[0].trim().toLowerCase(Locale.ROOT);
                 String value = parts[1].trim();
@@ -57,7 +57,7 @@ public class ParseController {
             if (header == null) {
                 String[] parts = line.split(",");
                 if (parts.length < 2) {
-                    throw new RuntimeException("Cannot parse header: '" + line + "'");
+                    return ResponseEntity.badRequest().body(Map.of("error", "Cannot parse header: '" + line + "'"));
                 }
                 header = Arrays.asList(parts);
                 continue;
@@ -66,22 +66,26 @@ public class ParseController {
             // data
             String[] parts = line.split(",");
             if (parts.length != header.size()) {
-                throw new RuntimeException("Cannot parse record: '" + line + "'");
+                return ResponseEntity.badRequest().body(Map.of("error", "Cannot parse record: '" + line + "'"));
             }
 
-            records.add(Arrays.stream(parts)
-                .map(value -> {
-                    try {
-                        return new BigDecimal(value);
-                    } catch (Exception exception) {
-                        throw new RuntimeException("Cannot parse value: '" + value + "' from record '" + line + "'");
-                    }
-                })
-                .collect(Collectors.toList()));
+            try {
+                records.add(Arrays.stream(parts)
+                    .map(value -> {
+                        try {
+                            return new BigDecimal(value);
+                        } catch (Exception exception) {
+                            throw new RuntimeException("Cannot parse value: '" + value + "' from record '" + line + "'");
+                        }
+                    })
+                    .collect(Collectors.toList()));
+            } catch (Exception exception) {
+                return ResponseEntity.badRequest().body(Map.of("error", exception.getMessage()));
+            }
         }
 
         if (header == null || records.size() < 2) {
-            throw new RuntimeException("Invalid report");
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid report"));
         }
 
         Map<String, Object> stats = Map.of(
