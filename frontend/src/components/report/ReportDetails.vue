@@ -2,7 +2,7 @@
   <MDBCard>
     <MDBCardBody>
       <MDBCardTitle class="d-flex">
-        <span class="me-1">Report from {{ new Date().toLocaleString() }}</span>
+        <span class="me-1">Report from {{ time.toLocaleString() }}</span>
         <MDBBadge color="primary">OT-v1.0</MDBBadge>
       </MDBCardTitle>
       <MDBRow>
@@ -41,6 +41,7 @@ export default {
     MDBCol
   },
   props: {
+    time: Date,
     meta: Object
   }
 }

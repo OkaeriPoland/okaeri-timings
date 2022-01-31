@@ -40,7 +40,7 @@
       </MDBCol>
 
       <MDBCol md="12" v-if="report">
-        <ReportDetails :meta="report.meta"/>
+        <ReportDetails :time="reportTime" :meta="report.meta"/>
       </MDBCol>
 
       <MDBCol md="12" v-if="report">
@@ -130,8 +130,18 @@ export default {
   },
   watch: {
     files: async function (value) {
+
       let formData = new FormData();
       formData.append('file', value[0]);
+
+      const match = /okaeri-timings-([0-9]+)\.csv/.exec(value[0].name);
+      if (match === null) {
+        this.showError(`Invalid file name '${value[0].name}'!`)
+        return;
+      } else {
+        this.reportTime = new Date(parseInt(match[1]) * 1000);
+      }
+
       this.report = await this.axios.post('/v1/parse', formData, {headers: {'Content-Type': 'multipart/form-data'}})
           .then((response) => {
             console.log(`Report parsing took ${response.data.stats.parseTime}`);
@@ -160,6 +170,7 @@ export default {
     return {
       files: ref([]),
       report: ref(),
+      reportTime: undefined,
       errorModal: ref(false),
       errorContent: undefined
     };
