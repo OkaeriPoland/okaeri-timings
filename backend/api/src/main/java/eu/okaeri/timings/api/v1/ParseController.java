@@ -24,10 +24,6 @@ public class ParseController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> parse(@RequestPart("file") MultipartFile file) {
 
-        if (!"text/csv".equals(file.getContentType())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Expected text/csv, got: " + file.getContentType()));
-        }
-
         Instant start = Instant.now();
         String content = new String(file.getBytes(), StandardCharsets.UTF_8);
         String[] lines = content.split("\r?\n");
