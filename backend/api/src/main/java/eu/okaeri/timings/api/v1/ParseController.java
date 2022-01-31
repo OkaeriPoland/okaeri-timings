@@ -84,15 +84,15 @@ public class ParseController {
             throw new RuntimeException("Invalid report");
         }
 
-        Map<String, Object> report = Map.of(
-            "took", (Duration.between(start, Instant.now()))
+        Map<String, Object> stats = Map.of(
+            "parseTime", (Duration.between(start, Instant.now()))
         );
 
         return ResponseEntity.ok(Map.of(
             "meta", metadata,
             "header", header,
             "data", records,
-            "report", report
+            "stats", stats
         ));
     }
 }

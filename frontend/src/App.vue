@@ -96,7 +96,7 @@ export default {
       this.report = await this.axios.post('/v1/parse', formData, {headers: {'Content-Type': 'multipart/form-data'}})
           .then((response) => response.data)
           .catch((error) => console.log(error));
-      console.log(`Report parsing took ${this.report.took}`);
+      console.log(`Report parsing took ${this.report.stats.parseTime}`);
     }
   },
   setup: function () {
