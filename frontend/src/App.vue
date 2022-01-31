@@ -58,10 +58,43 @@
     </MDBRow>
   </MDBContainer>
 
+  <MDBModal id="errorModal" tabindex="-1" labelledby="errorModalLabel" v-model="errorModal">
+    <MDBModalHeader>
+      <MDBModalTitle id="errorModalLabel">
+        <font-awesome-icon icon="exclamation-triangle"/>
+        Error
+      </MDBModalTitle>
+    </MDBModalHeader>
+    <MDBModalBody>
+      {{ errorContent }}
+    </MDBModalBody>
+    <MDBModalFooter>
+      <MDBBtn color="primary" @click="errorModal = false">Close</MDBBtn>
+    </MDBModalFooter>
+  </MDBModal>
+
 </template>
 
 <script>
-import {MDBCard, MDBCardBody, MDBCardText, MDBCardTitle, MDBCol, MDBContainer, MDBFile, MDBNavbar, MDBNavbarItem, MDBNavbarNav, MDBRow} from 'mdb-vue-ui-kit';
+import {
+  MDBBtn,
+  MDBCard,
+  MDBCardBody,
+  MDBCardText,
+  MDBCardTitle,
+  MDBCol,
+  MDBContainer,
+  MDBFile,
+  MDBModal,
+  MDBModalBody,
+  MDBModalFooter,
+  MDBModalHeader,
+  MDBModalTitle,
+  MDBNavbar,
+  MDBNavbarItem,
+  MDBNavbarNav,
+  MDBRow
+} from 'mdb-vue-ui-kit';
 import ReportSummary from "@/components/report/summary/ReportSummary";
 import ReportHistoryProcMeminfo from "@/components/report/history/ReportHistoryProcMeminfo";
 import ReportHistoryProcStat from "@/components/report/history/ReportHistoryProcStat";
@@ -84,7 +117,13 @@ export default {
     MDBFile,
     MDBRow,
     MDBCol,
-    MDBCardText
+    MDBCardText,
+    MDBModal,
+    MDBModalBody,
+    MDBModalFooter,
+    MDBModalHeader,
+    MDBModalTitle,
+    MDBBtn
   },
   props: {
     msg: String
@@ -94,9 +133,22 @@ export default {
       let formData = new FormData();
       formData.append('file', value[0]);
       this.report = await this.axios.post('/v1/parse', formData, {headers: {'Content-Type': 'multipart/form-data'}})
-          .then((response) => response.data)
-          .catch((error) => console.log(error));
-      console.log(`Report parsing took ${this.report.stats.parseTime}`);
+          .then((response) => {
+            console.log(`Report parsing took ${response.data.stats.parseTime}`);
+            return response.data;
+          })
+          .catch((error) => {
+            if (error.response) {
+              this.showError(error.response.data.error);
+            } else {
+              this.showError(error);
+            }
+          });
+    },
+    errorModal: function (value) {
+      if (!value) {
+        window.location.reload();
+      }
     }
   },
   setup: function () {
@@ -108,7 +160,21 @@ export default {
     return {
       files: ref([]),
       report: ref(),
+      errorModal: ref(false),
+      errorContent: undefined
     };
+  },
+  methods: {
+    showError(error) {
+      if (typeof (error) === 'string') {
+        this.errorContent = error;
+      } else if (error.message === 'Network Error') {
+        this.errorContent = 'API server cannot be reached. Please check your network connection.'
+      } else {
+        this.errorContent = `Unknown error: ${error.message || JSON.stringify(error)}`
+      }
+      this.errorModal = true;
+    }
   }
 }
 </script>
