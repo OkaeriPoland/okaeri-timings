@@ -17,11 +17,20 @@ print_metadata() {
     provider=$(echo "$noproxyout" | grep -oP '"provider":(\s+)?"([^"\\]|\\.)*",?' | awk -F '"' '{print $4}')
     country=$(echo "$noproxyout" | grep -oP '"country":(\s+)?"([^"\\]|\\.)*",?' | awk -F '"' '{print $4}')
 
+    cpuarch=$(lscpu | grep '^Architecture: ' | cut -d\  -f3- | awk '{$1=$1; print}')
+    cpumodel=$(lscpu | grep '^Model name: ' | cut -d\  -f3- | awk '{$1=$1; print}')
+    cputhreadspercore=$(lscpu | grep '^Thread(s) per core: ' | cut -d\  -f4- | awk '{$1=$1; print}')
+    cpucorespersocket=$(lscpu | grep '^Core(s) per socket: ' | cut -d\  -f4- | awk '{$1=$1; print}')
+    cpusockets=$(lscpu | grep '^Socket(s): ' | cut -d\  -f4- | awk '{$1=$1; print}')
+
     echo "#"
     echo "# Okaeri Timings 1.0"
     echo "#"
     echo "# User: $(with_fallback "<Unknown>" $(whoami))"
     echo "# Hostname: $(with_fallback "<Unknown>" $(hostname))"
+    echo "#"
+    echo "# Startup: $(with_fallback "<Unknown>" $(uptime -s))"
+    echo "# Uptime: $(with_fallback "<Unknown>" $(uptime -p))"
     echo "#"
     echo "# IP: $(with_fallback "<Unknown>" $ip)"
     echo "# ASN: $(with_fallback "<Unknown>" $asn)"
@@ -31,8 +40,8 @@ print_metadata() {
     echo "# Kernel: $(with_fallback "<Unknown>" $(uname -r))"
     echo "# OS: $(with_fallback "<Unknown>" $(cat /etc/os-release | grep PRETTY_NAME | awk -F '"' '{print $2}'))"
     echo "#"
-    echo "# Arch: $(with_fallback "<Unknown>" $(lscpu | grep '^Architecture: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
-    echo "# CPU: $(with_fallback "<Unknown>" $(lscpu | grep '^Model name: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
+    echo "# Arch: $(with_fallback "<Unknown>" $cpuarch)"
+    echo "# CPU: $(with_fallback "<Unknown>" $cpumodel) [$(with_fallback "?" $cpusockets) x $(with_fallback "?" $cpucorespersocket) x $(with_fallback "?" $cputhreadspercore)]"
     echo "#"
     echo "# Hypervisor: $(with_fallback "N/A" $(lscpu | grep '^Hypervisor vendor: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
     echo "# Virtualization: $(with_fallback "N/A" $(lscpu | grep '^Virtualization type: ' | cut -d\  -f3- | awk '{$1=$1; print}'))"
@@ -119,4 +128,3 @@ else
 
     echo "[$(date '+%Y/%m/%d %H:%M:%S')] Done!"
 fi
-
