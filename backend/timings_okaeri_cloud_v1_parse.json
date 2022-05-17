@@ -14,7 +14,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "timings-api.okaeri.cloud/v1/parse",
+        "path": "api.timings.okaeri.cloud/v1/parse",
         "responseMode": "lastNode",
         "options": {}
       },
